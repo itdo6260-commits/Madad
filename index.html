@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Madad - Small Help. Big Impact.</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+<header class="bg-white border-b sticky top-0 z-[1000]">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center gap-3 justify-between">
+    <div class="font-bold text-xl text-teal-700">Madad</div>
+    <nav class="flex gap-1 text-sm">
+      <button data-view="home" class="nav px-3 py-1.5 rounded-lg">Home</button>
+      <button data-view="browse" class="nav px-3 py-1.5 rounded-lg">Find Help</button>
+      <button data-view="post" class="nav px-3 py-1.5 rounded-lg">Request Help</button>
+      <button data-view="dash" class="nav px-3 py-1.5 rounded-lg">My Dashboard</button>
+    </nav>
+    <div class="flex items-center gap-2 text-sm">
+      <input id="nameInput" placeholder="Your name" maxlength="40" class="border rounded-lg px-2 py-1.5 w-32">
+      <div class="flex rounded-lg border overflow-hidden">
+        <button id="roleReq" class="px-3 py-1.5">Requester</button>
+        <button id="roleVol" class="px-3 py-1.5">Volunteer</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 py-6">
+
+  <!-- HOME -->
+  <section id="v-home">
+    <div class="text-center py-10">
+      <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900">Someone Nearby Needs You.</h1>
+      <p class="mt-3 text-slate-600 text-lg">Small Help. Big Impact.</p>
+      <div class="mt-6 flex justify-center gap-3 flex-wrap">
+        <button data-view="post" class="goto bg-teal-700 text-white px-6 py-3 rounded-xl font-semibold">Request Help</button>
+        <button id="becomeVol" class="bg-white border-2 border-teal-700 text-teal-700 px-6 py-3 rounded-xl font-semibold">Become a Volunteer</button>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="stats"></div>
+    <div class="mt-10 grid md:grid-cols-3 gap-4 text-center">
+      <div class="bg-white rounded-xl p-5 shadow-sm"><div class="text-2xl">1. Post</div><p class="text-slate-600 mt-1">Describe what you need and where.</p></div>
+      <div class="bg-white rounded-xl p-5 shadow-sm"><div class="text-2xl">2. Accept</div><p class="text-slate-600 mt-1">A nearby volunteer clicks "I Can Help".</p></div>
+      <div class="bg-white rounded-xl p-5 shadow-sm"><div class="text-2xl">3. Done</div><p class="text-slate-600 mt-1">Marked complete and the community impact grows.</p></div>
+    </div>
+  </section>
+
+  <!-- BROWSE -->
+  <section id="v-browse" class="hidden">
+    <div class="bg-white rounded-xl shadow-sm p-4 grid grid-cols-2 md:grid-cols-6 gap-2 text-sm">
+      <input id="fq" placeholder="Search..." class="border rounded-lg px-2 py-2 col-span-2">
+      <select id="fcat" class="border rounded-lg px-2 py-2"></select>
+      <select id="fur" class="border rounded-lg px-2 py-2"><option value="">Any urgency</option><option>High</option><option>Medium</option><option>Low</option></select>
+      <select id="fst" class="border rounded-lg px-2 py-2"><option value="">Any status</option><option>Open</option><option>Accepted</option><option>Completed</option></select>
+      <select id="fso" class="border rounded-lg px-2 py-2"><option value="urgency">Sort: Urgency</option><option value="newest">Sort: Newest</option></select>
+    </div>
+    <div class="flex gap-2 my-4 text-sm">
+      <button id="mList" class="px-4 py-1.5 rounded-lg">List</button>
+      <button id="mMap" class="px-4 py-1.5 rounded-lg">Map</button>
+    </div>
+    <div id="list" class="grid md:grid-cols-2 gap-4"></div>
+    <div id="mapWrap" class="hidden"><div id="map" class="h-[480px] rounded-xl border"></div></div>
+  </section>
+
+  <!-- POST -->
+  <section id="v-post" class="hidden">
+    <form id="postForm" class="bg-white rounded-xl shadow-sm p-6 max-w-xl mx-auto space-y-4">
+      <h2 class="text-2xl font-bold">Request Help</h2>
+      <div><label class="text-sm font-medium">Title</label><input id="pTitle" maxlength="100" required class="w-full border rounded-lg px-3 py-2 mt-1"></div>
+      <div><label class="text-sm font-medium">Description</label><textarea id="pDesc" maxlength="500" rows="3" required class="w-full border rounded-lg px-3 py-2 mt-1"></textarea>
+        <p class="text-xs text-slate-500 mt-1">Don't post exact addresses, phone numbers or medical details.</p></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="text-sm font-medium">Category</label><select id="pCat" class="w-full border rounded-lg px-3 py-2 mt-1"></select></div>
+        <div><label class="text-sm font-medium">Urgency</label><select id="pUr" class="w-full border rounded-lg px-3 py-2 mt-1"><option>Low</option><option selected>Medium</option><option>High</option></select></div>
+      </div>
+      <div><label class="text-sm font-medium">Neighbourhood</label><select id="pArea" class="w-full border rounded-lg px-3 py-2 mt-1"></select></div>
+      <button class="w-full bg-teal-700 text-white py-3 rounded-lg font-semibold">Submit Request</button>
+    </form>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="v-dash" class="hidden">
+    <h2 class="text-2xl font-bold mb-4" id="dashTitle"></h2>
+    <div class="grid grid-cols-3 gap-4 mb-6" id="dashStats"></div>
+    <h3 class="font-semibold mb-2">Requests I accepted (Volunteer)</h3>
+    <div id="dVol" class="grid md:grid-cols-2 gap-4 mb-8"></div>
+    <h3 class="font-semibold mb-2">Requests I posted</h3>
+    <div id="dReq" class="grid md:grid-cols-2 gap-4"></div>
+  </section>
+</main>
+
+<div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm hidden z-[2000]"></div>
+
+<script>
+const AREAS = {
+  "Banjara Hills":[17.4156,78.4347],"Gachibowli":[17.4401,78.3489],"Secunderabad":[17.4399,78.4983],
+  "Madhapur":[17.4486,78.3908],"Charminar":[17.3616,78.4747],"Kukatpally":[17.4948,78.3996],
+  "Dilsukhnagar":[17.3688,78.5247],"Ameerpet":[17.4375,78.4483]
+};
+const CATS = ["Groceries","Education","Transport","Community Support","Blood Donation"];
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let role = localStorage.getItem("role") || "Requester";
+let me = localStorage.getItem("name") || "";
+let view = "home", mode = "list", map = null, layer = null;
+
+function toast(msg) {
+  const t = $("toast"); t.textContent = msg; t.classList.remove("hidden");
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.add("hidden"), 2500);
+}
+
+async function api(url, body) {
+  const opts = body ? { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body) } : {};
+  const r = await fetch(url, opts);
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error || "Something went wrong");
+  return d;
+}
+
+function setRole(r) {
+  role = r; localStorage.setItem("role", r);
+  const on = "bg-teal-700 text-white", off = "bg-white text-slate-700";
+  $("roleReq").className = "px-3 py-1.5 " + (r === "Requester" ? on : off);
+  $("roleVol").className = "px-3 py-1.5 " + (r === "Volunteer" ? on : off);
+  refresh();
+}
+
+function show(v) {
+  view = v;
+  ["home","browse","post","dash"].forEach(x => $("v-" + x).classList.toggle("hidden", x !== v));
+  document.querySelectorAll(".nav").forEach(b => {
+    b.className = "nav px-3 py-1.5 rounded-lg " + (b.dataset.view === v ? "bg-teal-100 text-teal-800 font-semibold" : "text-slate-600");
+  });
+  refresh();
+}
+
+function refresh() {
+  if (view === "home") loadStats();
+  if (view === "browse") loadBrowse();
+  if (view === "dash") loadDash();
+}
+
+async function loadStats() {
+  const s = await api("/api/stats");
+  const box = (n, l) => `<div class="bg-white rounded-xl shadow-sm p-5 text-center"><div class="text-3xl font-extrabold text-teal-700">${n}</div><div class="text-sm text-slate-500">${l}</div></div>`;
+  $("stats").innerHTML = box(s.total, "Requests posted") + box(s.open, "Waiting for help") + box(s.completed, "Completed") + box(s.volunteers, "Active volunteers");
+}
+
+function card(r) {
+  const ur = {High:"bg-red-100 text-red-700",Medium:"bg-yellow-100 text-yellow-800",Low:"bg-green-100 text-green-700"}[r.urgency];
+  const st = {Open:"bg-blue-100 text-blue-700",Accepted:"bg-purple-100 text-purple-700",Completed:"bg-slate-200 text-slate-600"}[r.status];
+  let btn = "";
+  if (r.status === "Open") btn = `<button data-act="accept" data-id="${r.id}" class="bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">I Can Help</button>`;
+  else if (r.status === "Accepted" && role === "Volunteer" && r.volunteer_name === me)
+    btn = `<button data-act="complete" data-id="${r.id}" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">Mark Completed</button>`;
+  return `<div class="bg-white rounded-xl shadow-sm p-4 flex flex-col gap-2">
+    <div class="flex justify-between items-start gap-2">
+      <h3 class="font-semibold">${esc(r.title)}</h3>
+      <span class="text-xs px-2 py-1 rounded-full whitespace-nowrap ${ur}">${r.urgency}</span>
+    </div>
+    <p class="text-sm text-slate-600">${esc(r.description)}</p>
+    <div class="flex flex-wrap gap-2 text-xs">
+      <span class="px-2 py-1 rounded-full bg-slate-100">${esc(r.category)}</span>
+      <span class="px-2 py-1 rounded-full bg-slate-100">${esc(r.location)}</span>
+      <span class="px-2 py-1 rounded-full ${st}">${r.status}</span>
+    </div>
+    <div class="flex justify-between items-center mt-1">
+      <span class="text-xs text-slate-500">By ${esc(r.requester_name)}${r.volunteer_name ? " · Helper: " + esc(r.volunteer_name) : ""}</span>
+      ${btn}
+    </div>
+  </div>`;
+}
+
+async function loadBrowse() {
+  const p = new URLSearchParams({
+    q: $("fq").value, category: $("fcat").value, urgency: $("fur").value, status: $("fst").value, sort: $("fso").value
+  });
+  const rows = await api("/api/requests?" + p);
+  $("list").innerHTML = rows.length ? rows.map(card).join("") : '<p class="text-slate-500">No requests match your filters.</p>';
+  drawMap(rows);
+}
+
+function drawMap(rows) {
+  if (!map) {
+    map = L.map("map").setView([17.4, 78.45], 11);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap contributors" }).addTo(map);
+    layer = L.layerGroup().addTo(map);
+  }
+  layer.clearLayers();
+  rows.filter(r => r.lat != null && r.lng != null).forEach(r => {
+    const m = L.marker([r.lat, r.lng]).addTo(layer);
+    const el = document.createElement("div");
+    el.innerHTML = `<b>${esc(r.title)}</b><br>${esc(r.category)} · ${r.urgency}<br>${esc(r.location)} · ${r.status}`;
+    m.bindPopup(el);
+  });
+}
+
+function setMode(m) {
+  mode = m;
+  $("list").classList.toggle("hidden", m !== "list");
+  $("mapWrap").classList.toggle("hidden", m !== "map");
+  const on = "bg-teal-700 text-white", off = "bg-white border";
+  $("mList").className = "px-4 py-1.5 rounded-lg " + (m === "list" ? on : off);
+  $("mMap").className = "px-4 py-1.5 rounded-lg " + (m === "map" ? on : off);
+  if (m === "map") setTimeout(() => map && map.invalidateSize(), 50);
+}
+
+async function loadDash() {
+  $("dashTitle").textContent = me ? `Hi, ${me}` : "Enter your name at the top to see your dashboard";
+  const rows = await api("/api/requests?sort=newest");
+  const mine = rows.filter(r => me && r.volunteer_name === me);
+  const posted = rows.filter(r => me && r.requester_name === me);
+  const done = mine.filter(r => r.status === "Completed").length;
+  const box = (n, l) => `<div class="bg-white rounded-xl shadow-sm p-4 text-center"><div class="text-2xl font-extrabold text-teal-700">${n}</div><div class="text-xs text-slate-500">${l}</div></div>`;
+  $("dashStats").innerHTML = box(mine.length, "Accepted") + box(done, "Completed") + box(posted.length, "Posted");
+  $("dVol").innerHTML = mine.length ? mine.map(card).join("") : '<p class="text-slate-500 text-sm">Nothing yet. Switch to Volunteer and accept a request.</p>';
+  $("dReq").innerHTML = posted.length ? posted.map(card).join("") : '<p class="text-slate-500 text-sm">You haven\'t posted any requests.</p>';
+}
+
+function needName() {
+  if (!me) { toast("Type your name at the top first."); $("nameInput").focus(); return false; }
+  return true;
+}
+
+document.addEventListener("click", async e => {
+  const b = e.target.closest("[data-act]");
+  if (b) {
+    if (!needName()) return;
+    try {
+      if (b.dataset.act === "accept") {
+        if (role !== "Volunteer") { toast("Switch to Volunteer mode first."); return; }
+        await api(`/api/requests/${b.dataset.id}/accept`, { name: me });
+        toast("You accepted this request. Thank you!");
+      } else {
+        await api(`/api/requests/${b.dataset.id}/complete`, { name: me });
+        toast("Marked as completed. Impact updated!");
+      }
+    } catch (err) { toast(err.message); }
+    refresh();
+    return;
+  }
+  const v = e.target.closest("[data-view]");
+  if (v) show(v.dataset.view);
+});
+
+$("roleReq").onclick = () => setRole("Requester");
+$("roleVol").onclick = () => setRole("Volunteer");
+$("becomeVol").onclick = () => { setRole("Volunteer"); show("browse"); };
+$("nameInput").value = me;
+$("nameInput").onchange = e => { me = e.target.value.trim(); localStorage.setItem("name", me); refresh(); };
+$("mList").onclick = () => setMode("list");
+$("mMap").onclick = () => setMode("map");
+["fq","fcat","fur","fst","fso"].forEach(id => $(id).addEventListener(id === "fq" ? "input" : "change", loadBrowse));
+
+$("fcat").innerHTML = '<option value="">All categories</option>' + CATS.map(c => `<option>${c}</option>`).join("");
+$("pCat").innerHTML = CATS.map(c => `<option>${c}</option>`).join("");
+$("pArea").innerHTML = Object.keys(AREAS).map(a => `<option>${a}</option>`).join("");
+
+$("postForm").onsubmit = async e => {
+  e.preventDefault();
+  if (!needName()) return;
+  const area = $("pArea").value, [lat, lng] = AREAS[area];
+  try {
+    await api("/api/requests", {
+      name: me, title: $("pTitle").value, description: $("pDesc").value, category: $("pCat").value,
+      urgency: $("pUr").value, location: area,
+      lat: lat + (Math.random() - .5) * .01, lng: lng + (Math.random() - .5) * .01  // approximate on purpose
+    });
+    e.target.reset();
+    toast("Request posted!");
+    show("browse");
+  } catch (err) { toast(err.message); }
+};
+
+setRole(role); setMode("list"); show("home");
+</script>
+</body>
+</html>
